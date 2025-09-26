@@ -1,4 +1,5 @@
 """Lesson services handling AI generation and lifecycle."""
+
 from __future__ import annotations
 
 from typing import Iterable
@@ -21,12 +22,16 @@ class LessonService:
     def generate_lesson(self, *, author: User, resource: Resource) -> Lesson:
         """Generate a lesson from a resource."""
         if resource.owner_id != author.id and not author.has_role("admin"):
-            raise LessonServiceError("Unauthorized to generate lesson for this resource")
+            raise LessonServiceError(
+                "Unauthorized to generate lesson for this resource"
+            )
         chunks = self._ai_service.chunk_resource(resource, chunk_size=1000)
         payload = self._ai_service.generate_flashcards(chunks)
         lesson = Lesson(
             title=f"Lesson on {resource.original_name}",
-            content="\n".join(f"Q: {card.question}\nA: {card.answer}" for card in payload.cards),
+            content="\n".join(
+                f"Q: {card.question}\nA: {card.answer}" for card in payload.cards
+            ),
             summary=payload.summary,
             author=author,
             resource=resource,

@@ -1,4 +1,5 @@
 """Resource schemas."""
+
 from __future__ import annotations
 
 from marshmallow import fields

@@ -1,4 +1,5 @@
 """Lesson model representing structured learning content."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, List
@@ -25,7 +26,9 @@ class Lesson(TimestampMixin, Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     summary: Mapped[str | None] = mapped_column(Text)
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
-    resource_id: Mapped[int | None] = mapped_column(ForeignKey("resources.id", ondelete="SET NULL"))
+    resource_id: Mapped[int | None] = mapped_column(
+        ForeignKey("resources.id", ondelete="SET NULL")
+    )
     status: Mapped[str] = mapped_column(String(50), default="draft")
 
     author: Mapped["User" | None] = relationship("User", back_populates="lessons")

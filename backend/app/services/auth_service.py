@@ -1,4 +1,5 @@
 """Authentication and authorization services."""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -56,7 +57,10 @@ class AuthService:
         if not user.is_active:
             raise AuthServiceError("Account disabled")
 
-        access_token = create_access_token(identity=user.id, additional_claims={"roles": [role.name for role in user.roles]})
+        access_token = create_access_token(
+            identity=user.id,
+            additional_claims={"roles": [role.name for role in user.roles]},
+        )
         refresh_token = create_refresh_token(identity=user.id)
         return access_token, refresh_token, user
 
@@ -105,7 +109,10 @@ class AuthService:
             db.session.add(user)
             db.session.commit()
 
-        access_token = create_access_token(identity=user.id, additional_claims={"roles": [role.name for role in user.roles]})
+        access_token = create_access_token(
+            identity=user.id,
+            additional_claims={"roles": [role.name for role in user.roles]},
+        )
         refresh_token = create_refresh_token(identity=user.id)
         return access_token, refresh_token, user
 

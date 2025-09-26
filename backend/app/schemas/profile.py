@@ -1,4 +1,5 @@
 """Profile schema."""
+
 from __future__ import annotations
 
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema

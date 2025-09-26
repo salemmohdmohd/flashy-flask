@@ -1,4 +1,5 @@
 """Category model used for tagging content."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, List
@@ -15,15 +16,21 @@ if TYPE_CHECKING:
 resource_categories = Table(
     "resource_categories",
     Base.metadata,
-    Column("resource_id", ForeignKey("resources.id", ondelete="CASCADE"), primary_key=True),
-    Column("category_id", ForeignKey("categories.id", ondelete="CASCADE"), primary_key=True),
+    Column(
+        "resource_id", ForeignKey("resources.id", ondelete="CASCADE"), primary_key=True
+    ),
+    Column(
+        "category_id", ForeignKey("categories.id", ondelete="CASCADE"), primary_key=True
+    ),
 )
 
 lesson_categories = Table(
     "lesson_categories",
     Base.metadata,
     Column("lesson_id", ForeignKey("lessons.id", ondelete="CASCADE"), primary_key=True),
-    Column("category_id", ForeignKey("categories.id", ondelete="CASCADE"), primary_key=True),
+    Column(
+        "category_id", ForeignKey("categories.id", ondelete="CASCADE"), primary_key=True
+    ),
 )
 
 

@@ -1,4 +1,5 @@
 """Security utilities for RBAC and password policies."""
+
 from __future__ import annotations
 
 from functools import wraps

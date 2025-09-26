@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from .blog import BlogPost
 from .category import Category
-from .flashcard import Flashcard, FlashcardDeck
 from .faq import FAQ
+from .flashcard import Flashcard, FlashcardDeck
 from .lesson import Lesson
 from .notification import Notification
 from .profile import Profile

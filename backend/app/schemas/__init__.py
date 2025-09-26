@@ -1,4 +1,5 @@
 """Schema exports."""
+
 from __future__ import annotations
 
 from .auth import LoginSchema, RegisterSchema

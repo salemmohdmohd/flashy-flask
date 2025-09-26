@@ -76,3 +76,4 @@ __marimo__/
 target/
 *.md
 *.pdf
+.venv/

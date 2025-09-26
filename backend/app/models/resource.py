@@ -1,4 +1,5 @@
 """Resource model representing uploaded study materials."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, List

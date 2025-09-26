@@ -1,4 +1,5 @@
 """Central logging configuration."""
+
 from __future__ import annotations
 
 LOGGING_CONFIG = {

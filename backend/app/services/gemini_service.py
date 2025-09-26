@@ -1,4 +1,5 @@
 """Gemini generative AI integration."""
+
 from __future__ import annotations
 
 import json
@@ -69,7 +70,10 @@ class GeminiService:
         except json.JSONDecodeError as exc:
             raise GeminiServiceError("Gemini returned invalid JSON") from exc
 
-        cards = [FlashcardItem(question=item["question"], answer=item["answer"]) for item in payload["flashcards"]]
+        cards = [
+            FlashcardItem(question=item["question"], answer=item["answer"])
+            for item in payload["flashcards"]
+        ]
         summary = payload["summary"]
         return FlashcardPayload(cards=cards, summary=summary)
 

@@ -1,4 +1,5 @@
 """Frequently asked question model."""
+
 from __future__ import annotations
 
 from sqlalchemy import Integer, String, Text
