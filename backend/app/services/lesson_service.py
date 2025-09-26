@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Iterable
-
 from ..extensions import db
 from ..models import Lesson, Resource, User
-from .gemini_service import GeminiService, gemini_service
+from .gemini_service import GeminiService, GeminiServiceError, gemini_service
 
 
 class LessonServiceError(Exception):
@@ -25,8 +23,13 @@ class LessonService:
             raise LessonServiceError(
                 "Unauthorized to generate lesson for this resource"
             )
-        chunks = self._ai_service.chunk_resource(resource, chunk_size=1000)
-        payload = self._ai_service.generate_flashcards(chunks)
+        try:
+            chunks = self._ai_service.chunk_resource(resource, chunk_size=1000)
+            payload = self._ai_service.generate_flashcards(chunks)
+        except GeminiServiceError as exc:  # pragma: no cover - relies on external API
+            resource.ai_processing_status = "failed"
+            db.session.commit()
+            raise LessonServiceError(str(exc)) from exc
         lesson = Lesson(
             title=f"Lesson on {resource.original_name}",
             content="\n".join(
@@ -38,6 +41,7 @@ class LessonService:
             status="draft",
         )
         db.session.add(lesson)
+        resource.ai_processing_status = "complete"
         db.session.commit()
         return lesson
 

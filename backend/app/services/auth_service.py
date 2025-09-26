@@ -105,7 +105,7 @@ class AuthService:
         if not user:
             username = userinfo.get("given_name") or email.split("@")[0]
             user = User(email=email, username=username)
-            user.password_hash = "oauth"
+            user.set_password(current_app.config.get("SECURITY_PASSWORD_SALT", "oauth"))
             profile = Profile(
                 first_name=userinfo.get("given_name"),
                 last_name=userinfo.get("family_name"),

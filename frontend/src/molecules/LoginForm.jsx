@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components/native';
-import TextField from '../atoms/TextInput';
 import Button from '../atoms/Button';
+import TextField from '../atoms/TextInput';
 
 const Form = styled.View`
   width: 100%;

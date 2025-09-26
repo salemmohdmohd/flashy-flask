@@ -38,14 +38,21 @@ def list_posts():
     posts = (
         BlogPost.query.filter_by(is_published=True)
         .order_by(BlogPost.created_at.desc())
-        .with_entities(BlogPost.title, BlogPost.slug, BlogPost.content)
+        .with_entities(
+            BlogPost.title, BlogPost.slug, BlogPost.content, BlogPost.hero_image_url
+        )
         .all()
     )
     return (
         jsonify(
             [
-                {"title": title, "slug": slug, "content": content}
-                for title, slug, content in posts
+                {
+                    "title": title,
+                    "slug": slug,
+                    "content": content,
+                    "hero_image_url": hero_image_url,
+                }
+                for title, slug, content, hero_image_url in posts
             ]
         ),
         200,

@@ -1,6 +1,5 @@
-import React from 'react';
 import styled from 'styled-components/native';
-import { Heading, BodyText } from '../atoms/Text';
+import { BodyText, Heading } from '../atoms/Text';
 
 const Container = styled.View`
   flex: 1;

@@ -46,11 +46,36 @@ class GeminiService:
         return genai.GenerativeModel(self._model_name)
 
     def chunk_resource(self, resource: Resource, *, chunk_size: int = 800) -> list[str]:
-        """Chunk resource description for AI processing."""
-        text = resource.description or ""
-        if not text:
+        """Chunk resource content for AI processing."""
+        if chunk_size <= 0:
+            raise GeminiServiceError("chunk_size must be positive")
+
+        text_source = (resource.text_content or resource.description or "").strip()
+        if not text_source:
             raise GeminiServiceError("Resource missing textual content")
-        return [text[i : i + chunk_size] for i in range(0, len(text), chunk_size)]
+
+        words = text_source.split()
+        if not words:
+            raise GeminiServiceError("Resource text could not be tokenized")
+
+        chunks: list[str] = []
+        current_chunk: list[str] = []
+        current_length = 0
+
+        for word in words:
+            word_length = len(word) + 1  # include a space
+            if current_chunk and current_length + word_length > chunk_size:
+                chunks.append(" ".join(current_chunk))
+                current_chunk = [word]
+                current_length = len(word)
+            else:
+                current_chunk.append(word)
+                current_length += word_length
+
+        if current_chunk:
+            chunks.append(" ".join(current_chunk))
+
+        return chunks
 
     def generate_flashcards(self, chunks: Iterable[str]) -> FlashcardPayload:
         """Generate flashcards and summary from text chunks."""
@@ -70,10 +95,18 @@ class GeminiService:
         except json.JSONDecodeError as exc:
             raise GeminiServiceError("Gemini returned invalid JSON") from exc
 
-        cards = [
-            FlashcardItem(question=item["question"], answer=item["answer"])
-            for item in payload["flashcards"]
-        ]
+        if "flashcards" not in payload or "summary" not in payload:
+            raise GeminiServiceError("Gemini response missing required fields")
+
+        cards: list[FlashcardItem] = []
+        for item in payload["flashcards"]:
+            question = item.get("question")
+            answer = item.get("answer")
+            if not question or not answer:
+                continue
+            cards.append(FlashcardItem(question=question, answer=answer))
+        if not cards:
+            raise GeminiServiceError("No flashcards produced by Gemini")
         summary = payload["summary"]
         return FlashcardPayload(cards=cards, summary=summary)
 

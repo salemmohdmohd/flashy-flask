@@ -28,6 +28,7 @@ class Resource(TimestampMixin, Base):
     mime_type: Mapped[str | None] = mapped_column(String(120))
     storage_url: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
+    text_content: Mapped[str | None] = mapped_column(Text)
     ai_processing_status: Mapped[str] = mapped_column(String(50), default="pending")
 
     owner: Mapped["User"] = relationship("User", back_populates="resources")
@@ -44,3 +45,11 @@ class Resource(TimestampMixin, Base):
 
     def __repr__(self) -> str:
         return f"<Resource {self.filename}>"
+
+    def text_excerpt(self, length: int = 500) -> str | None:
+        """Return a truncated excerpt of the extracted text content."""
+        if not self.text_content:
+            return None
+        if len(self.text_content) <= length:
+            return self.text_content
+        return f"{self.text_content[:length].rstrip()}…"

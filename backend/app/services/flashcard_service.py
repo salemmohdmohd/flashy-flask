@@ -4,11 +4,9 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from flask import current_app
-
 from ..extensions import db
 from ..models import Flashcard, FlashcardDeck, Resource, User
-from .gemini_service import GeminiService, gemini_service
+from .gemini_service import GeminiService, GeminiServiceError, gemini_service
 
 
 class FlashcardServiceError(Exception):
@@ -30,8 +28,13 @@ class FlashcardService:
                 "Unauthorized to generate flashcards for this resource"
             )
 
-        chunks = self._ai_service.chunk_resource(resource, chunk_size=chunk_size)
-        ai_payload = self._ai_service.generate_flashcards(chunks)
+        try:
+            chunks = self._ai_service.chunk_resource(resource, chunk_size=chunk_size)
+            ai_payload = self._ai_service.generate_flashcards(chunks)
+        except GeminiServiceError as exc:  # pragma: no cover - airflow depends on SDK
+            resource.ai_processing_status = "failed"
+            db.session.commit()
+            raise FlashcardServiceError(str(exc)) from exc
 
         deck = FlashcardDeck(
             title=f"AI Deck for {resource.original_name}",
@@ -43,6 +46,7 @@ class FlashcardService:
         for item in ai_payload.cards:
             flashcard = Flashcard(question=item.question, answer=item.answer, deck=deck)
             db.session.add(flashcard)
+        resource.ai_processing_status = "complete"
         db.session.commit()
         return deck
 

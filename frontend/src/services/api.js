@@ -1,8 +1,9 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
-import { getAccessToken, getRefreshToken, saveTokens, clearTokens } from '../utils/tokenStorage';
+import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from '../utils/tokenStorage';
 
-const baseURL = Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
+const baseURL =
+  Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
 export const api = axios.create({
   baseURL,

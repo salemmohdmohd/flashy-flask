@@ -8,7 +8,7 @@ from flask_jwt_extended import jwt_required
 from ..extensions import db
 from ..models import FAQ, BlogPost, Resource, Role, User
 from ..schemas import ResourceSchema, UserSchema
-from ..utils.security import roles_required
+from ..utils.security import roles_accepted, roles_required
 
 admin_bp = Blueprint("admin", __name__)
 user_schema = UserSchema()
@@ -55,7 +55,7 @@ def moderate_resources():
 
 @admin_bp.post("/content/blog")
 @jwt_required()
-@roles_required("admin", "marketing")
+@roles_accepted("admin", "marketing")
 def create_blog_post():
     """Create or update a marketing blog post."""
     payload = request.get_json() or {}
@@ -69,13 +69,15 @@ def create_blog_post():
     post.title = payload.get("title", post.title)
     post.content = payload.get("content", post.content)
     post.is_published = payload.get("is_published", post.is_published or False)
+    if "hero_image_url" in payload:
+        post.hero_image_url = payload.get("hero_image_url")
     db.session.commit()
     return jsonify({"message": "Blog post saved", "slug": post.slug}), 200
 
 
 @admin_bp.post("/content/faq")
 @jwt_required()
-@roles_required("admin", "marketing")
+@roles_accepted("admin", "marketing")
 def create_faq():
     """Create or update FAQs."""
     payload = request.get_json() or {}
