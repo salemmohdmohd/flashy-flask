@@ -1,4 +1,5 @@
 """Application configuration classes."""
+
 from __future__ import annotations
 
 import os
@@ -31,7 +32,9 @@ class BaseConfig:
     GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
     GOOGLE_OAUTH_REDIRECT_URI = os.getenv("GOOGLE_OAUTH_REDIRECT_URI")
     GOOGLE_GEMINI_API_KEY = os.getenv("GOOGLE_GEMINI_API_KEY")
-    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "").split(",") if os.getenv("CORS_ORIGINS") else []
+    CORS_ORIGINS = (
+        os.getenv("CORS_ORIGINS", "").split(",") if os.getenv("CORS_ORIGINS") else []
+    )
     RATELIMIT_ENABLED = True
     ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@example.com")
     ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")

@@ -1,4 +1,5 @@
 """Application factory for the Flashy Flask backend."""
+
 from __future__ import annotations
 
 import logging
@@ -8,15 +9,7 @@ from typing import Any
 from flask import Flask
 from flask_cors import CORS
 
-from .extensions import (
-    admin,
-    bcrypt,
-    db,
-    jwt,
-    limiter,
-    mail,
-    migrate,
-)
+from .extensions import admin, bcrypt, db, jwt, limiter, mail, migrate
 from .routes.admin import admin_bp
 from .routes.auth import auth_bp
 from .routes.flashcards import flashcard_bp
@@ -72,7 +65,6 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(public_bp, url_prefix="/api/v1/public")
 
 
-
 def configure_cors(app: Flask) -> None:
     """Configure Cross-Origin Resource Sharing policies."""
     allowed_origins: list[str] = app.config.get("CORS_ORIGINS", [])
@@ -84,7 +76,6 @@ def configure_cors(app: Flask) -> None:
         resources={r"/api/*": {"origins": allowed_origins}},
         supports_credentials=True,
     )
-
 
 
 def register_cli(app: Flask) -> None:

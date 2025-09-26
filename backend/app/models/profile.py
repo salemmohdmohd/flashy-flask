@@ -1,4 +1,5 @@
 """User profile model."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -22,7 +23,9 @@ class Profile(TimestampMixin, Base):
     last_name: Mapped[str | None] = mapped_column(String(120))
     bio: Mapped[str | None] = mapped_column(String(1024))
     role_title: Mapped[str | None] = mapped_column(String(120))
-    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
 
     user: Mapped["User" | None] = relationship("User", back_populates="profile")
 

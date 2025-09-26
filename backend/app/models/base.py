@@ -1,4 +1,5 @@
 """Declarative base and shared mixins."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -14,4 +15,6 @@ class TimestampMixin:
     """Mixin adding created and updated timestamps."""
 
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        default=datetime.utcnow, onupdate=datetime.utcnow
+    )
