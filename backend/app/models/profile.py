@@ -24,7 +24,7 @@ class Profile(TimestampMixin, Base):
     bio: Mapped[str | None] = mapped_column(String(1024))
     role_title: Mapped[str | None] = mapped_column(String(120))
     user_id: Mapped[int | None] = mapped_column(
-        ForeignKey("users.id", ondelete="SET NULL")
+        ForeignKey("users.id", ondelete="SET NULL"), unique=True
     )
 
     user: Mapped["User" | None] = relationship("User", back_populates="profile")

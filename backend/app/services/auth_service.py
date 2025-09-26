@@ -69,11 +69,17 @@ class AuthService:
         token_endpoint = "https://oauth2.googleapis.com/token"
         config = current_app.config
 
+        client_id = config.get("GOOGLE_OAUTH_CLIENT_ID")
+        client_secret = config.get("GOOGLE_OAUTH_CLIENT_SECRET")
+        redirect_uri = config.get("GOOGLE_OAUTH_REDIRECT_URI")
+        if not all([client_id, client_secret, redirect_uri]):
+            raise AuthServiceError("Google OAuth configuration missing")
+
         payload = {
             "code": code,
-            "client_id": config["GOOGLE_OAUTH_CLIENT_ID"],
-            "client_secret": config["GOOGLE_OAUTH_CLIENT_SECRET"],
-            "redirect_uri": config["GOOGLE_OAUTH_REDIRECT_URI"],
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "redirect_uri": redirect_uri,
             "grant_type": "authorization_code",
         }
 

@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from ..extensions import db
+from ..extensions import db, ma
 from ..models import Lesson
 
 
-class LessonSchema(SQLAlchemyAutoSchema):
+class LessonSchema(ma.SQLAlchemyAutoSchema):
     """Serialize lesson data."""
 
     categories = fields.List(fields.Str())

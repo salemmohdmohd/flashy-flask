@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from ..extensions import db
+from ..extensions import db, ma
 from ..models import Resource
 
 
-class ResourceSchema(SQLAlchemyAutoSchema):
+class ResourceSchema(ma.SQLAlchemyAutoSchema):
     """Serialize resource data."""
 
     categories = fields.List(fields.Str())

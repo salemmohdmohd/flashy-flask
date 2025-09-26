@@ -9,7 +9,9 @@ from typing import Any
 from flask import Flask
 from flask_cors import CORS
 
-from .extensions import admin, bcrypt, db, jwt, limiter, mail, migrate
+from .admin import setup_admin
+from .extensions import bcrypt, db, jwt, limiter, ma, mail, migrate
+from .jwt_callbacks import configure_jwt
 from .routes.admin import admin_bp
 from .routes.auth import auth_bp
 from .routes.flashcards import flashcard_bp
@@ -37,6 +39,7 @@ def create_app(config_class: str = "backend.config.DevelopmentConfig") -> Flask:
 
     register_extensions(app)
     register_blueprints(app)
+    setup_admin(app)
     register_cli(app)
     configure_cors(app)
 
@@ -49,9 +52,10 @@ def register_extensions(app: Flask) -> None:
     migrate.init_app(app, db)
     mail.init_app(app)
     jwt.init_app(app)
+    configure_jwt(jwt)
     bcrypt.init_app(app)
     limiter.init_app(app)
-    admin.init_app(app)
+    ma.init_app(app)
 
 
 def register_blueprints(app: Flask) -> None:

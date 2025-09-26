@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-
-from ..extensions import db
+from ..extensions import db, ma
 from ..models import Profile
 
 
-class ProfileSchema(SQLAlchemyAutoSchema):
+class ProfileSchema(ma.SQLAlchemyAutoSchema):
     """Serialize profile data."""
 
     class Meta:

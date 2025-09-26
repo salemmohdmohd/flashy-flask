@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..extensions import bcrypt
@@ -38,9 +38,6 @@ class User(TimestampMixin, Base):
     is_email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
-    profile_id: Mapped[int | None] = mapped_column(
-        ForeignKey("profiles.id", ondelete="SET NULL")
-    )
 
     roles: Mapped[List["Role"]] = relationship(
         "Role",
@@ -89,3 +86,15 @@ class User(TimestampMixin, Base):
 
     def __repr__(self) -> str:
         return f"<User {self.email}>"
+
+    @property
+    def is_authenticated(self) -> bool:
+        """Compatibility property for admin views."""
+        return True
+
+    @property
+    def is_anonymous(self) -> bool:
+        return False
+
+    def get_id(self) -> str:
+        return str(self.id)

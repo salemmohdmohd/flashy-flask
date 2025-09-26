@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from ..extensions import db
+from ..extensions import db, ma
 from ..models import User
 from .profile import ProfileSchema
 
 
-class UserSchema(SQLAlchemyAutoSchema):
+class UserSchema(ma.SQLAlchemyAutoSchema):
     """Serialize user information."""
 
     profile = fields.Nested(ProfileSchema)

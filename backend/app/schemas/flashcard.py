@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from marshmallow import fields
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-from ..extensions import db
+from ..extensions import db, ma
 from ..models import Flashcard, FlashcardDeck
 
 
-class FlashcardSchema(SQLAlchemyAutoSchema):
+class FlashcardSchema(ma.SQLAlchemyAutoSchema):
     """Serialize flashcards."""
 
     class Meta:
@@ -19,7 +18,7 @@ class FlashcardSchema(SQLAlchemyAutoSchema):
         include_fk = True
 
 
-class FlashcardDeckSchema(SQLAlchemyAutoSchema):
+class FlashcardDeckSchema(ma.SQLAlchemyAutoSchema):
     """Serialize flashcard decks."""
 
     flashcards = fields.Nested(FlashcardSchema, many=True)
