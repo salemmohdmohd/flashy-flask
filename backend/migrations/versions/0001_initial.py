@@ -1,14 +1,14 @@
 """Initial database schema
 
 Revision ID: 0001_initial
-Revises: 
+Revises:
 Create Date: 2025-09-26 00:00:00.000000
 """
+
 from __future__ import annotations
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "0001_initial"
@@ -23,7 +23,9 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("name", sa.String(length=50), nullable=False, unique=True),
         sa.Column("description", sa.String(length=255), nullable=True),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),
@@ -39,10 +41,19 @@ def upgrade() -> None:
         sa.Column("email", sa.String(length=255), nullable=False, unique=True),
         sa.Column("username", sa.String(length=120), nullable=False, unique=True),
         sa.Column("password_hash", sa.String(length=255), nullable=False),
-        sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.text("1")),
-        sa.Column("is_email_verified", sa.Boolean(), nullable=False, server_default=sa.text("0")),
+        sa.Column(
+            "is_active", sa.Boolean(), nullable=False, server_default=sa.text("1")
+        ),
+        sa.Column(
+            "is_email_verified",
+            sa.Boolean(),
+            nullable=False,
+            server_default=sa.text("0"),
+        ),
         sa.Column("last_login_at", sa.DateTime(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),
@@ -59,8 +70,10 @@ def upgrade() -> None:
         sa.Column("last_name", sa.String(length=120), nullable=True),
         sa.Column("bio", sa.String(length=1024), nullable=True),
         sa.Column("role_title", sa.String(length=120), nullable=True),
-    sa.Column("user_id", sa.Integer(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=True),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),
@@ -68,8 +81,8 @@ def upgrade() -> None:
             onupdate=sa.func.now(),
             nullable=False,
         ),
-    sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="SET NULL"),
-    sa.UniqueConstraint("user_id"),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="SET NULL"),
+        sa.UniqueConstraint("user_id"),
     )
 
     op.create_table(
@@ -85,7 +98,9 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("name", sa.String(length=120), nullable=False, unique=True),
         sa.Column("description", sa.String(length=255), nullable=True),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),
@@ -104,8 +119,15 @@ def upgrade() -> None:
         sa.Column("mime_type", sa.String(length=120), nullable=True),
         sa.Column("storage_url", sa.String(length=500), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
-        sa.Column("ai_processing_status", sa.String(length=50), nullable=False, server_default="pending"),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "ai_processing_status",
+            sa.String(length=50),
+            nullable=False,
+            server_default="pending",
+        ),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),
@@ -123,7 +145,9 @@ def upgrade() -> None:
         sa.Column("description", sa.String(length=500), nullable=True),
         sa.Column("owner_id", sa.Integer(), nullable=False),
         sa.Column("resource_id", sa.Integer(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),
@@ -141,7 +165,9 @@ def upgrade() -> None:
         sa.Column("question", sa.Text(), nullable=False),
         sa.Column("answer", sa.Text(), nullable=False),
         sa.Column("deck_id", sa.Integer(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),
@@ -149,7 +175,9 @@ def upgrade() -> None:
             onupdate=sa.func.now(),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(["deck_id"], ["flashcard_decks.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(
+            ["deck_id"], ["flashcard_decks.id"], ondelete="CASCADE"
+        ),
     )
 
     op.create_table(
@@ -160,8 +188,12 @@ def upgrade() -> None:
         sa.Column("summary", sa.Text(), nullable=True),
         sa.Column("author_id", sa.Integer(), nullable=True),
         sa.Column("resource_id", sa.Integer(), nullable=True),
-        sa.Column("status", sa.String(length=50), nullable=False, server_default="draft"),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "status", sa.String(length=50), nullable=False, server_default="draft"
+        ),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),
@@ -196,8 +228,12 @@ def upgrade() -> None:
         sa.Column("slug", sa.String(length=255), nullable=False, unique=True),
         sa.Column("content", sa.Text(), nullable=False),
         sa.Column("author_id", sa.Integer(), nullable=True),
-        sa.Column("is_published", sa.Boolean(), nullable=False, server_default=sa.text("0")),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "is_published", sa.Boolean(), nullable=False, server_default=sa.text("0")
+        ),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),
@@ -213,8 +249,12 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("question", sa.String(length=255), nullable=False),
         sa.Column("answer", sa.Text(), nullable=False),
-        sa.Column("is_active", sa.Boolean(), nullable=False, server_default=sa.text("1")),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "is_active", sa.Boolean(), nullable=False, server_default=sa.text("1")
+        ),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),
@@ -231,7 +271,9 @@ def upgrade() -> None:
         sa.Column("subject", sa.String(length=255), nullable=False),
         sa.Column("message", sa.Text(), nullable=False),
         sa.Column("is_read", sa.Boolean(), nullable=False, server_default=sa.text("0")),
-        sa.Column("created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column(
             "updated_at",
             sa.DateTime(),

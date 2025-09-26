@@ -1,4 +1,5 @@
 """JWT callbacks for user loading and claims."""
+
 from __future__ import annotations
 
 from flask import jsonify

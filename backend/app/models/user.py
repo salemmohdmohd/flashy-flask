@@ -38,7 +38,6 @@ class User(TimestampMixin, Base):
     is_email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
-
     roles: Mapped[List["Role"]] = relationship(
         "Role",
         secondary=user_roles,

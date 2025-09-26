@@ -14,6 +14,7 @@ logger = logging.getLogger("alembic.env")
 
 target_metadata = current_app.extensions["migrate"].db.metadata  # type: ignore[index]
 
+
 def run_migrations_offline() -> None:
     url = current_app.config.get("SQLALCHEMY_DATABASE_URI")
     context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
