@@ -74,6 +74,11 @@ def refresh_token():
     identity = get_jwt_identity()
     claims = get_jwt()
     roles = claims.get("roles", [])
+    if not roles:
+        try:
+            roles = auth_service.get_user_roles(identity)
+        except AuthServiceError as exc:
+            return jsonify({"message": str(exc)}), 401
     new_token = create_access_token(
         identity=identity, additional_claims={"roles": roles}
     )

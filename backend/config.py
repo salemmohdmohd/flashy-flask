@@ -73,5 +73,5 @@ class TestingConfig(BaseConfig):
 class ProductionConfig(BaseConfig):
     """Production configuration."""
 
-    DEBUG = False
+    DEBUG = True
     FLASK_ENV = "production"

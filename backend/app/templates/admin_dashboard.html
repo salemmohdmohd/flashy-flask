@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flashy Admin Dashboard</title>
+  <style>
+    :root {
+      --primary: #1d4ed8;
+      --primary-dark: #1e40af;
+      --bg: #0f172a;
+      --panel: rgba(15, 23, 42, 0.78);
+      --card: rgba(15, 23, 42, 0.92);
+      --border: rgba(148, 163, 184, 0.35);
+      --accent: #22d3ee;
+      --success: #22c55e;
+      --warning: #f97316;
+      --error: #ef4444;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: dark;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, rgba(34, 211, 238, 0.15), transparent 45%),
+        radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.12), transparent 40%),
+        linear-gradient(160deg, #0f172a 0%, #020617 100%);
+      color: rgba(226, 232, 240, 0.95);
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 24px clamp(16px, 3vw, 48px) 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      background: rgba(2, 6, 23, 0.72);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header h1 span {
+      font-size: clamp(0.8rem, 2vw, 1rem);
+      font-weight: 500;
+      color: rgba(148, 163, 184, 0.9);
+    }
+    header .actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    button,
+    .link {
+      border: 1px solid rgba(226, 232, 240, 0.2);
+      background: rgba(37, 99, 235, 0.12);
+      color: inherit;
+      padding: 10px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s ease, transform 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    button:hover,
+    .link:hover {
+      background: rgba(37, 99, 235, 0.24);
+      transform: translateY(-1px);
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .layout {
+      padding: 32px clamp(16px, 3vw, 48px) 48px;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: clamp(16px, 3vw, 32px);
+      flex: 1;
+    }
+    nav {
+      background: var(--panel);
+      border-radius: 24px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: sticky;
+      top: 108px;
+      align-self: start;
+    }
+    nav button {
+      width: 100%;
+      justify-content: flex-start;
+      background: transparent;
+      border-radius: 16px;
+      padding: 12px 16px;
+      border: 1px solid transparent;
+      color: rgba(226, 232, 240, 0.9);
+    }
+    nav button.active {
+      background: rgba(37, 99, 235, 0.24);
+      border-color: rgba(37, 99, 235, 0.4);
+    }
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .panel {
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      padding: clamp(20px, 3vw, 28px);
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.4);
+    }
+    .panel h2 {
+      margin-top: 0;
+      font-size: clamp(1.3rem, 3vw, 1.6rem);
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .metric {
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: rgba(30, 41, 59, 0.6);
+    }
+    .metric span {
+      display: block;
+      color: rgba(148, 163, 184, 0.9);
+      font-size: 0.85rem;
+    }
+    .metric strong {
+      margin-top: 8px;
+      display: block;
+      font-size: 1.6rem;
+      letter-spacing: -0.02em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.95rem;
+    }
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+      text-align: left;
+    }
+    th {
+      color: rgba(148, 163, 184, 0.9);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.75rem;
+    }
+    tr:hover td {
+      background: rgba(30, 64, 175, 0.2);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+    .status-badge.success {
+      background: rgba(34, 197, 94, 0.18);
+      color: #4ade80;
+    }
+    .status-badge.warning {
+      background: rgba(249, 115, 22, 0.18);
+      color: #fb923c;
+    }
+    .status-badge.error {
+      background: rgba(239, 68, 68, 0.18);
+      color: #f87171;
+    }
+    .empty-state {
+      border: 1px dashed rgba(148, 163, 184, 0.35);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      color: rgba(148, 163, 184, 0.85);
+      margin-top: 16px;
+    }
+    .badge-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .badge {
+      background: rgba(148, 163, 184, 0.1);
+      color: rgba(226, 232, 240, 0.85);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .message {
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(37, 99, 235, 0.12);
+      font-size: 0.95rem;
+      display: none;
+      margin-bottom: 16px;
+    }
+    .message.visible {
+      display: block;
+    }
+    .message.tone-success {
+      border-color: rgba(34, 197, 94, 0.35);
+      background: rgba(34, 197, 94, 0.15);
+    }
+    .message.tone-error {
+      border-color: rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.18);
+    }
+    .message.tone-warning {
+      border-color: rgba(249, 115, 22, 0.35);
+      background: rgba(249, 115, 22, 0.18);
+    }
+    .message.tone-info {
+      border-color: rgba(59, 130, 246, 0.35);
+      background: rgba(59, 130, 246, 0.18);
+    }
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    button.small {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+    button.ghost {
+      background: transparent;
+      border-color: rgba(148, 163, 184, 0.35);
+    }
+    button.ghost:hover {
+      background: rgba(59, 130, 246, 0.15);
+    }
+    button.danger {
+      border-color: rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.15);
+    }
+    button.danger:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+    button.success {
+      border-color: rgba(34, 197, 94, 0.35);
+      background: rgba(34, 197, 94, 0.15);
+    }
+    button.success:hover {
+      background: rgba(34, 197, 94, 0.25);
+    }
+    .form-card {
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 24px;
+      background: rgba(15, 23, 42, 0.72);
+    }
+    .form-card h3 {
+      margin: 0 0 16px;
+      font-size: 1.1rem;
+    }
+    .form-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-bottom: 12px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(148, 163, 184, 0.9);
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.85);
+      color: rgba(226, 232, 240, 0.95);
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+    select {
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.85);
+      color: rgba(226, 232, 240, 0.95);
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+    .form-group textarea {
+      min-height: 160px;
+      resize: vertical;
+    }
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .flex-spacer {
+      flex: 1 1 auto;
+    }
+    .form-switch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: rgba(148, 163, 184, 0.85);
+    }
+    .form-switch input {
+      width: 18px;
+      height: 18px;
+    }
+    .form-subheading {
+      margin: 0 0 18px;
+      color: rgba(148, 163, 184, 0.75);
+      font-size: 0.9rem;
+    }
+    @media (max-width: 960px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        position: static;
+      }
+      nav button {
+        flex: 1 1 45%;
+      }
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      header .actions {
+        align-self: stretch;
+        justify-content: space-between;
+      }
+      nav button {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Flashy Control Center <span id="roleBadge"></span></h1>
+    <div class="actions">
+      <button id="refreshBtn" type="button">Refresh data</button>
+      <button id="logoutBtn" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav id="nav"></nav>
+    <main>
+      <div id="message" class="message"></div>
+      <section id="overview" class="panel" hidden>
+        <h2>Operating Summary</h2>
+        <div class="grid" id="metrics"></div>
+      </section>
+      <section id="users" class="panel" hidden>
+        <h2>Administrators &amp; Staff</h2>
+        <div id="usersContent"></div>
+      </section>
+      <section id="resources" class="panel" hidden>
+        <h2>Resource Moderation</h2>
+        <div id="resourcesContent"></div>
+      </section>
+      <section id="notifications" class="panel" hidden>
+        <h2>Recent Notifications</h2>
+        <div id="notificationsContent"></div>
+      </section>
+      <section id="marketing" class="panel" hidden>
+        <h2>Marketing Content</h2>
+        <div id="marketingSummary"></div>
+        <div id="marketingComposer" class="form-card">
+          <h3 id="marketingFormHeading">Compose new post</h3>
+          <p id="marketingFormSubheading" class="form-subheading">
+            Draft or publish marketing updates directly from the control center.
+          </p>
+          <form id="marketingForm" autocomplete="off">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="marketingTitle">Title</label>
+                <input id="marketingTitle" name="title" type="text" placeholder="Launch announcement" required />
+              </div>
+              <div class="form-group">
+                <label for="marketingSlug">Slug</label>
+                <input id="marketingSlug" name="slug" type="text" placeholder="launch-announcement" required />
+              </div>
+              <div class="form-group">
+                <label for="marketingHero">Hero image URL</label>
+                <input id="marketingHero" name="hero_image_url" type="url" placeholder="https://..." />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="marketingContent">Content</label>
+              <textarea id="marketingContent" name="content" placeholder="Write the full blog article here." required></textarea>
+            </div>
+            <div class="form-actions">
+              <label class="form-switch" for="marketingPublish">
+                <input id="marketingPublish" type="checkbox" /> Publish immediately
+              </label>
+              <div class="flex-spacer"></div>
+              <button id="marketingFormSubmit" type="submit" class="success">Create post</button>
+              <button id="marketingFormReset" type="button" class="ghost">Reset</button>
+            </div>
+          </form>
+        </div>
+        <div id="marketingPosts"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const ACCESS_KEY = "flashy.accessToken";
+    const REFRESH_KEY = "flashy.refreshToken";
+    const USER_KEY = "flashy.user";
+
+    const nav = document.getElementById("nav");
+    const sections = {
+      overview: document.getElementById("overview"),
+      users: document.getElementById("users"),
+      resources: document.getElementById("resources"),
+      notifications: document.getElementById("notifications"),
+      marketing: document.getElementById("marketing"),
+    };
+    const metricsContainer = document.getElementById("metrics");
+    const usersContent = document.getElementById("usersContent");
+    const resourcesContent = document.getElementById("resourcesContent");
+    const notificationsContent = document.getElementById("notificationsContent");
+    const marketingSummaryContainer = document.getElementById("marketingSummary");
+    const marketingPostsContainer = document.getElementById("marketingPosts");
+  const marketingForm = document.getElementById("marketingForm");
+  const marketingFormHeading = document.getElementById("marketingFormHeading");
+  const marketingFormHeadingDefault = marketingFormHeading.textContent;
+  const marketingFormSubheading = document.getElementById("marketingFormSubheading");
+  const marketingFormSubheadingDefault = marketingFormSubheading.textContent;
+    const marketingTitleInput = document.getElementById("marketingTitle");
+    const marketingSlugInput = document.getElementById("marketingSlug");
+    const marketingHeroInput = document.getElementById("marketingHero");
+    const marketingContentInput = document.getElementById("marketingContent");
+    const marketingPublishInput = document.getElementById("marketingPublish");
+    const marketingFormSubmit = document.getElementById("marketingFormSubmit");
+    const marketingFormReset = document.getElementById("marketingFormReset");
+    const messageBox = document.getElementById("message");
+    const roleBadge = document.getElementById("roleBadge");
+
+    const buttons = {};
+    let roleSet = new Set();
+    let currentUserId = null;
+  let marketingEditingSlug = null;
+  let marketingEditingOriginalSlug = null;
+    let marketingPostsCache = [];
+    let userCache = [];
+    let resourceCache = [];
+
+    const ADMIN_ROLE = "admin";
+    const MARKETING_ROLE = "marketing";
+    const RESOURCE_STATUSES = [
+      "pending",
+      "processing",
+      "complete",
+      "failed",
+      "rejected",
+    ];
+
+    function hasRole(role) {
+      return roleSet.has(role);
+    }
+
+    function hasMarketingAccess() {
+      return hasRole(MARKETING_ROLE) || hasRole(ADMIN_ROLE);
+    }
+
+    function syncSectionVisibility() {
+      sections.users.hidden = !hasRole(ADMIN_ROLE);
+      sections.resources.hidden = !hasRole(ADMIN_ROLE);
+      sections.notifications.hidden = !hasRole(ADMIN_ROLE);
+      sections.marketing.hidden = !hasMarketingAccess();
+    }
+
+    function showMessage(text, tone = "info") {
+      messageBox.textContent = text;
+      messageBox.className = `message visible tone-${tone}`;
+      setTimeout(() => {
+        messageBox.className = "message";
+      }, 4500);
+    }
+
+    function resetTokens() {
+      localStorage.removeItem(ACCESS_KEY);
+      localStorage.removeItem(REFRESH_KEY);
+      localStorage.removeItem(USER_KEY);
+    }
+
+    function logout() {
+      resetTokens();
+      window.location.href = "/";
+    }
+
+    async function refreshAccessToken() {
+      const refreshToken = localStorage.getItem(REFRESH_KEY);
+      if (!refreshToken) {
+        throw new Error("Missing refresh token");
+      }
+      const response = await fetch("/api/v1/auth/refresh", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Refresh token expired");
+      }
+      const payload = await response.json();
+      localStorage.setItem(ACCESS_KEY, payload.access_token);
+      return payload.access_token;
+    }
+
+    async function apiFetch(path, { method = "GET", body = null, headers = {} } = {}) {
+      let token = localStorage.getItem(ACCESS_KEY);
+      if (!token) {
+        token = await refreshAccessToken().catch(() => null);
+        if (!token) throw new Error("Authentication required");
+      }
+
+      const baseHeaders = {
+        Authorization: `Bearer ${token}`,
+        ...headers,
+      };
+      if (body && !baseHeaders["Content-Type"]) {
+        baseHeaders["Content-Type"] = "application/json";
+      }
+
+      let response = await fetch(path, {
+        method,
+        headers: baseHeaders,
+        body,
+      });
+
+      if (response.status === 401) {
+        const newToken = await refreshAccessToken().catch(() => null);
+        if (!newToken) {
+          logout();
+          return Promise.reject(new Error("Session expired"));
+        }
+        const retryHeaders = {
+          Authorization: `Bearer ${newToken}`,
+          ...headers,
+        };
+        if (body && !retryHeaders["Content-Type"]) {
+          retryHeaders["Content-Type"] = "application/json";
+        }
+        response = await fetch(path, {
+          method,
+          headers: retryHeaders,
+          body,
+        });
+      }
+
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || `Request failed: ${response.status}`);
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return response.json();
+      }
+      return response.text();
+    }
+
+    function renderNav() {
+      nav.innerHTML = "";
+      for (const key of Object.keys(buttons)) {
+        delete buttons[key];
+      }
+
+      const entries = [{ id: "overview", label: "Overview" }];
+
+      if (hasRole(ADMIN_ROLE)) {
+        entries.push(
+          { id: "users", label: "Users" },
+          { id: "resources", label: "Resources" },
+          { id: "notifications", label: "Notifications" }
+        );
+      }
+
+      if (hasMarketingAccess()) {
+        entries.push({ id: "marketing", label: "Marketing" });
+      }
+
+      entries.forEach(({ id, label }) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = label;
+        button.addEventListener("click", () => activateSection(id));
+        nav.appendChild(button);
+        buttons[id] = button;
+      });
+    }
+
+    function activateSection(id) {
+      Object.entries(sections).forEach(([key, section]) => {
+        const active = key === id;
+        section.hidden = !active;
+        if (buttons[key]) {
+          buttons[key].classList.toggle("active", active);
+        }
+      });
+    }
+
+    function renderMetrics(adminSummary = null, marketingSummary = null) {
+      metricsContainer.innerHTML = "";
+      const items = [];
+
+      if (adminSummary) {
+        items.push(
+          { label: "Active users", value: adminSummary.user_count },
+          { label: "Resources awaiting moderation", value: adminSummary.resource_pending },
+          { label: "Published lessons", value: adminSummary.published_lessons },
+          { label: "Unread notifications", value: adminSummary.unread_notifications }
+        );
+      }
+
+      if (marketingSummary) {
+        items.push(
+          { label: "Published blog posts", value: marketingSummary.published_posts },
+          { label: "Draft blog posts", value: marketingSummary.draft_posts }
+        );
+      }
+
+      if (!items.length) {
+        metricsContainer.innerHTML = '<div class="empty-state">No metrics available yet.</div>';
+        return;
+      }
+
+      items.forEach(({ label, value }) => {
+        const metric = document.createElement("div");
+        metric.className = "metric";
+        metric.innerHTML = `<span>${label}</span><strong>${value}</strong>`;
+        metricsContainer.appendChild(metric);
+      });
+    }
+
+    function renderUsers(users) {
+      userCache = users;
+      if (!users.length) {
+        usersContent.innerHTML = '<div class="empty-state">No team members found. Invite colleagues via the API.</div>';
+        return;
+      }
+
+      const rows = users
+        .map((user) => {
+          const fullName = [user.profile?.first_name, user.profile?.last_name].filter(Boolean).join(" ") || user.username;
+          const roleBadges = (user.roles || [])
+            .map((role) => `<span class="badge">${role}</span>`)
+            .join("");
+          const isMarketing = (user.roles || []).includes(MARKETING_ROLE);
+          const disableSelf = currentUserId === user.id;
+          const toggleLabel = user.is_active ? "Suspend" : "Activate";
+          const toggleClass = user.is_active ? "danger" : "success";
+          const marketingAction = isMarketing
+            ? `<button type="button" class="ghost small" data-action="revoke-marketing" data-user-id="${user.id}" ${disableSelf ? "disabled" : ""}>Revoke marketing</button>`
+            : `<button type="button" class="ghost small" data-action="grant-marketing" data-user-id="${user.id}">Grant marketing</button>`;
+          return `
+            <tr data-user-id="${user.id}">
+              <td>${fullName}</td>
+              <td>${user.email}</td>
+              <td><div class="badge-group">${roleBadges}</div></td>
+              <td><span class="status-badge ${user.is_active ? "success" : "error"}">${user.is_active ? "Active" : "Suspended"}</span></td>
+              <td>
+                <div class="table-actions">
+                  <button type="button" class="small ${toggleClass}" data-action="toggle-active" data-user-id="${user.id}" data-next-state="${String(!user.is_active)}" ${disableSelf ? "disabled" : ""}>${toggleLabel}</button>
+                  ${marketingAction}
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      usersContent.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Roles</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      bindUserActions();
+    }
+
+    function renderResources(resources) {
+      resourceCache = resources;
+      if (!resources.length) {
+        resourcesContent.innerHTML = '<div class="empty-state">No uploads require moderation right now.</div>';
+        return;
+      }
+      const rows = resources
+        .map((resource) => {
+          const statusClass = resource.ai_processing_status === "complete" ? "success" : resource.ai_processing_status === "pending" ? "warning" : "error";
+          const ownerLabel = resource.owner?.email || resource.owner_email || `User #${resource.owner_id || "?"}`;
+          const options = (() => {
+            const known = new Set(RESOURCE_STATUSES);
+            const optionMarkup = RESOURCE_STATUSES.map((status) => {
+              const selected = status === resource.ai_processing_status ? "selected" : "";
+              return `<option value="${status}" ${selected}>${status}</option>`;
+            }).join("");
+            if (!known.has(resource.ai_processing_status)) {
+              return `${optionMarkup}<option value="${resource.ai_processing_status}" selected>${resource.ai_processing_status}</option>`;
+            }
+            return optionMarkup;
+          })();
+          return `
+            <tr>
+              <td>${resource.original_name}</td>
+              <td>${ownerLabel}</td>
+              <td><span class="status-badge ${statusClass}">${resource.ai_processing_status}</span></td>
+              <td>${new Date(resource.created_at).toLocaleString()}</td>
+              <td>
+                <div class="table-actions">
+                  <select data-resource-id="${resource.id}">${options}</select>
+                  ${resource.download_url ? `<a class="link" href="${resource.download_url}" target="_blank" rel="noopener">Download</a>` : ""}
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+      resourcesContent.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Owner</th>
+              <th>Status</th>
+              <th>Uploaded</th>
+              <th>Moderation</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      bindResourceActions();
+    }
+
+    function renderNotifications(notifications) {
+      if (!notifications.length) {
+        notificationsContent.innerHTML = '<div class="empty-state">No notifications found for administrators.</div>';
+        return;
+      }
+      const list = notifications
+        .map((item) => {
+          return `
+            <article class="metric" style="background: rgba(15, 23, 42, 0.72);">
+              <h3 style="margin: 0 0 8px; font-size: 1rem;">${item.subject}</h3>
+              <p style="margin: 0 0 12px; color: rgba(226, 232, 240, 0.75);">${item.message}</p>
+              <span style="font-size: 0.75rem; color: rgba(148, 163, 184, 0.75);">Recipient: ${item.recipient?.email || "N/A"}</span>
+            </article>
+          `;
+        })
+        .join("");
+      notificationsContent.innerHTML = `<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">${list}</div>`;
+    }
+
+    function renderMarketingSummaryPanel(summary) {
+      if (!summary) {
+        marketingSummaryContainer.innerHTML = '<div class="empty-state">Marketing metrics will appear once content is created.</div>';
+        return;
+      }
+
+      const highlights = `
+        <div class="grid" style="margin-bottom: 24px;">
+          <div class="metric">
+            <span>Published posts</span>
+            <strong>${summary.published_posts}</strong>
+          </div>
+          <div class="metric">
+            <span>Drafts</span>
+            <strong>${summary.draft_posts}</strong>
+          </div>
+        </div>
+      `;
+
+      const recent = (summary.recent_posts || [])
+        .map((post) => {
+          const statusClass = post.is_published ? "success" : "warning";
+          const statusLabel = post.is_published ? "Published" : "Draft";
+          const updatedAt = post.updated_at ? new Date(post.updated_at).toLocaleString() : "—";
+          const authorLabel = post.author?.email || post.author?.username || "N/A";
+          return `
+            <tr>
+              <td>${post.title}</td>
+              <td>${post.slug}</td>
+              <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+              <td>${authorLabel}</td>
+              <td>${updatedAt}</td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      const recentTable = recent
+        ? `
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Slug</th>
+                <th>Status</th>
+                <th>Author</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody>${recent}</tbody>
+          </table>
+        `
+        : '<div class="empty-state">No recent posts yet.</div>';
+
+      marketingSummaryContainer.innerHTML = highlights + recentTable;
+    }
+
+    function renderMarketingPosts(posts) {
+      marketingPostsCache = posts;
+      if (!posts.length) {
+        marketingPostsContainer.innerHTML = '<div class="empty-state">No blog posts found. Create one to get started.</div>';
+        return;
+      }
+
+      const rows = posts
+        .map((post) => {
+          const statusClass = post.is_published ? "success" : "warning";
+          const statusLabel = post.is_published ? "Published" : "Draft";
+          const updatedAt = post.updated_at ? new Date(post.updated_at).toLocaleString() : "—";
+          const authorLabel = post.author?.email || post.author?.username || "N/A";
+          const publishToggleLabel = post.is_published ? "Unpublish" : "Publish";
+          const publishToggleTone = post.is_published ? "ghost" : "success";
+          const deleteButton = hasRole(ADMIN_ROLE)
+            ? `<button type="button" class="danger small" data-action="delete-post" data-slug="${post.slug}">Delete</button>`
+            : "";
+          return `
+            <tr>
+              <td>${post.title}</td>
+              <td>${post.slug}</td>
+              <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+              <td>${authorLabel}</td>
+              <td>${updatedAt}</td>
+              <td>
+                <div class="table-actions">
+                  <button type="button" class="small" data-action="edit-post" data-slug="${post.slug}">Edit</button>
+                  <button type="button" class="small ${publishToggleTone}" data-action="toggle-publish" data-slug="${post.slug}" data-next-state="${String(!post.is_published)}">${publishToggleLabel}</button>
+                  ${deleteButton}
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      marketingPostsContainer.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Slug</th>
+              <th>Status</th>
+              <th>Author</th>
+              <th>Updated</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      bindMarketingPostActions();
+    }
+
+    function bindUserActions() {
+      usersContent.querySelectorAll("button[data-action]").forEach((button) => {
+        button.addEventListener("click", handleUserAction);
+      });
+    }
+
+    async function handleUserAction(event) {
+      const button = event.currentTarget;
+      const action = button.dataset.action;
+      const userId = Number(button.dataset.userId);
+      if (!action || !userId) {
+        return;
+      }
+
+      button.disabled = true;
+      try {
+        if (action === "toggle-active") {
+          const nextState = button.dataset.nextState === "true";
+          await apiFetch(`/api/v1/admin/users/${userId}`, {
+            method: "PATCH",
+            body: JSON.stringify({ is_active: nextState }),
+          });
+          showMessage(`User ${nextState ? "activated" : "suspended"}.`, "success");
+          await loadDashboard(false);
+          return;
+        }
+
+        if (action === "grant-marketing" || action === "revoke-marketing") {
+          const target = userCache.find((candidate) => candidate.id === userId);
+          if (!target) {
+            throw new Error("User context unavailable");
+          }
+          const roles = new Set(target.roles || []);
+          if (action === "grant-marketing") {
+            roles.add(MARKETING_ROLE);
+          } else {
+            roles.delete(MARKETING_ROLE);
+            if (!roles.size) {
+              showMessage("Cannot remove all roles from a user.", "warning");
+              return;
+            }
+          }
+          await apiFetch(`/api/v1/admin/users/${userId}`, {
+            method: "PATCH",
+            body: JSON.stringify({ roles: Array.from(roles) }),
+          });
+          showMessage("Roles updated", "success");
+          await loadDashboard(false);
+          return;
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Unable to process user action", "error");
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function bindResourceActions() {
+      resourcesContent.querySelectorAll("select[data-resource-id]").forEach((select) => {
+        select.dataset.previousValue = select.value;
+        select.addEventListener("change", handleResourceStatusChange);
+      });
+    }
+
+    async function handleResourceStatusChange(event) {
+      const select = event.currentTarget;
+      const resourceId = Number(select.dataset.resourceId);
+      if (!resourceId) {
+        return;
+      }
+      const previousValue = select.dataset.previousValue || select.value;
+      const nextStatus = select.value;
+      select.disabled = true;
+
+      try {
+        await apiFetch(`/api/v1/admin/resources/${resourceId}`, {
+          method: "PATCH",
+          body: JSON.stringify({ ai_processing_status: nextStatus }),
+        });
+        select.dataset.previousValue = nextStatus;
+        showMessage("Resource status updated", "success");
+        await loadDashboard(false);
+      } catch (error) {
+        console.error(error);
+        select.value = previousValue;
+        showMessage(error.message || "Unable to update resource", "error");
+      } finally {
+        select.disabled = false;
+      }
+    }
+
+    function bindMarketingPostActions() {
+      marketingPostsContainer.querySelectorAll("button[data-action]").forEach((button) => {
+        button.addEventListener("click", handleMarketingPostAction);
+      });
+    }
+
+    async function handleMarketingPostAction(event) {
+      const button = event.currentTarget;
+      const action = button.dataset.action;
+      const slug = button.dataset.slug;
+      if (!action || !slug) {
+        return;
+      }
+
+      if (action === "edit-post") {
+        const target = marketingPostsCache.find((post) => post.slug === slug);
+        if (!target) {
+          showMessage("Unable to load post for editing", "error");
+          return;
+        }
+        beginMarketingEdit(target);
+        return;
+      }
+
+      button.disabled = true;
+      try {
+        if (action === "toggle-publish") {
+          const nextState = button.dataset.nextState === "true";
+          await apiFetch(`/api/v1/admin/blog-posts/${slug}/publish`, {
+            method: "POST",
+            body: JSON.stringify({ is_published: nextState }),
+          });
+          showMessage(`Post ${nextState ? "published" : "unpublished"}`, "success");
+          await loadDashboard(false);
+          return;
+        }
+
+        if (action === "delete-post") {
+          if (!confirm("Delete this post permanently?")) {
+            return;
+          }
+          await apiFetch(`/api/v1/admin/blog-posts/${slug}`, { method: "DELETE" });
+          showMessage("Post deleted", "success");
+          await loadDashboard(false);
+          return;
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Unable to complete action", "error");
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function beginMarketingEdit(post) {
+      marketingEditingSlug = post.slug;
+      marketingEditingOriginalSlug = post.slug;
+      marketingFormHeading.textContent = "Edit post";
+      marketingFormSubheading.textContent = `Updating “${post.title}”`; // typ quotes
+      marketingTitleInput.value = post.title || "";
+      marketingSlugInput.value = post.slug || "";
+      marketingHeroInput.value = post.hero_image_url || "";
+      marketingContentInput.value = post.content || "";
+      marketingPublishInput.checked = Boolean(post.is_published);
+      marketingFormSubmit.textContent = "Save changes";
+      marketingFormReset.textContent = "Cancel editing";
+      marketingFormSubmit.classList.add("success");
+      marketingFormSubmit.disabled = false;
+    }
+
+    function resetMarketingForm() {
+      marketingEditingSlug = null;
+      marketingEditingOriginalSlug = null;
+      marketingForm.reset();
+      marketingTitleInput.value = "";
+      marketingSlugInput.value = "";
+      marketingHeroInput.value = "";
+      marketingContentInput.value = "";
+      marketingPublishInput.checked = false;
+      marketingFormHeading.textContent = marketingFormHeadingDefault;
+      marketingFormSubheading.textContent = marketingFormSubheadingDefault;
+      marketingFormSubmit.textContent = "Create post";
+      marketingFormReset.textContent = "Reset";
+      marketingFormSubmit.classList.add("success");
+      marketingFormSubmit.disabled = false;
+    }
+
+    async function handleMarketingSubmit(event) {
+      event.preventDefault();
+      const payload = {
+        title: marketingTitleInput.value.trim(),
+        slug: marketingSlugInput.value.trim(),
+        hero_image_url: marketingHeroInput.value.trim() || null,
+        content: marketingContentInput.value.trim(),
+        is_published: marketingPublishInput.checked,
+      };
+
+      if (!payload.title || !payload.slug || !payload.content) {
+        showMessage("Title, slug, and content are required", "warning");
+        return;
+      }
+
+      const isEdit = Boolean(marketingEditingSlug);
+      const requestSlug = isEdit ? marketingEditingOriginalSlug : null;
+      const url = isEdit
+        ? `/api/v1/admin/blog-posts/${encodeURIComponent(requestSlug)}`
+        : "/api/v1/admin/blog-posts";
+      const method = isEdit ? "PUT" : "POST";
+
+      marketingFormSubmit.disabled = true;
+      try {
+        await apiFetch(url, {
+          method,
+          body: JSON.stringify(payload),
+        });
+        showMessage(isEdit ? "Post updated" : "Post created", "success");
+        resetMarketingForm();
+        await loadDashboard(false);
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Unable to save post", "error");
+      } finally {
+        marketingFormSubmit.disabled = false;
+      }
+    }
+
+    async function loadDashboard(showToast = true) {
+      try {
+        const adminAccess = hasRole(ADMIN_ROLE);
+        const marketingAccess = hasMarketingAccess();
+
+        let adminSummary = null;
+        let marketingSummary = null;
+
+        if (adminAccess) {
+          const [summary, users, resources, notifications] = await Promise.all([
+            apiFetch("/api/v1/admin/summary"),
+            apiFetch("/api/v1/admin/users"),
+            apiFetch("/api/v1/admin/resources"),
+            apiFetch("/api/v1/admin/notifications"),
+          ]);
+          adminSummary = summary;
+          renderUsers(users);
+          renderResources(resources);
+          renderNotifications(notifications);
+        } else {
+          usersContent.innerHTML = '<div class="empty-state">Admin access required to view team members.</div>';
+          resourcesContent.innerHTML = '<div class="empty-state">Admin access required to review resources.</div>';
+          notificationsContent.innerHTML = '<div class="empty-state">Admin access required to view notifications.</div>';
+        }
+
+        if (marketingAccess) {
+          const [summary, posts] = await Promise.all([
+            apiFetch("/api/v1/admin/marketing/summary"),
+            apiFetch("/api/v1/admin/blog-posts"),
+          ]);
+          marketingSummary = summary;
+          renderMarketingSummaryPanel(summary);
+          renderMarketingPosts(posts);
+        } else {
+          marketingSummaryContainer.innerHTML = '<div class="empty-state">Marketing access required to view content metrics.</div>';
+          marketingPostsContainer.innerHTML = '';
+        }
+
+        renderMetrics(adminSummary, marketingSummary);
+        if (showToast) {
+          showMessage("Dashboard refreshed", "success");
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Unable to load dashboard", "error");
+      }
+    }
+
+    async function guardRoute() {
+      const storedUser = localStorage.getItem(USER_KEY);
+      const access = localStorage.getItem(ACCESS_KEY);
+      if (!storedUser || !access) {
+        logout();
+        return;
+      }
+      let parsedUser;
+      try {
+        parsedUser = JSON.parse(storedUser);
+      } catch (error) {
+        console.warn("Invalid stored user", error);
+        logout();
+        return;
+      }
+      const roles = Array.isArray(parsedUser.roles) ? parsedUser.roles : [];
+      const permittedRoles = roles.filter((role) => role === ADMIN_ROLE || role === MARKETING_ROLE);
+      if (!permittedRoles.length) {
+        showMessage("Administrator or marketing access required.", "error");
+        setTimeout(logout, 1500);
+        return;
+      }
+
+      roleSet = new Set(permittedRoles);
+      roleBadge.textContent = permittedRoles.join(" · ");
+      const numericId = Number(parsedUser?.id);
+      currentUserId = Number.isFinite(numericId) ? numericId : parsedUser?.id ?? null;
+
+      renderNav();
+      syncSectionVisibility();
+      resetMarketingForm();
+      activateSection("overview");
+      loadDashboard();
+    }
+
+    marketingForm.addEventListener("submit", handleMarketingSubmit);
+    marketingFormReset.addEventListener("click", (event) => {
+      event.preventDefault();
+      resetMarketingForm();
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+    document.getElementById("refreshBtn").addEventListener("click", () => loadDashboard(true));
+
+    guardRoute();
+  </script>
+</body>
+</html>

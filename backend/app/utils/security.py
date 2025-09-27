@@ -6,7 +6,7 @@ from functools import wraps
 from typing import Callable
 
 from flask import abort
-from flask_jwt_extended import current_user
+from flask_jwt_extended import get_jwt
 
 
 def roles_required(*roles: str) -> Callable:
@@ -15,10 +15,13 @@ def roles_required(*roles: str) -> Callable:
     def decorator(fn: Callable) -> Callable:
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            if not current_user:
+            claims = get_jwt()
+            token_roles = set(claims.get("roles", []))
+            required_roles = set(roles)
+
+            if not token_roles:
                 abort(401, description="Authentication required")
-            missing = [role for role in roles if not current_user.has_role(role)]
-            if missing:
+            if not required_roles.issubset(token_roles):
                 abort(403, description="Insufficient permissions")
             return fn(*args, **kwargs)
 
@@ -33,9 +36,13 @@ def roles_accepted(*roles: str) -> Callable:
     def decorator(fn: Callable) -> Callable:
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            if not current_user:
+            claims = get_jwt()
+            token_roles = set(claims.get("roles", []))
+            accepted_roles = set(roles)
+
+            if not token_roles:
                 abort(401, description="Authentication required")
-            if not any(current_user.has_role(role) for role in roles):
+            if not token_roles.intersection(accepted_roles):
                 abort(403, description="Insufficient permissions")
             return fn(*args, **kwargs)
 

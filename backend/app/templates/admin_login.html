@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flashy Admin Login</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --primary: #2563eb;
+      --primary-dark: #1e3a8a;
+      --background: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.12), transparent 45%),
+        radial-gradient(circle at 80% 0%, rgba(14, 116, 144, 0.08), transparent 50%),
+        var(--background);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .card {
+      width: min(420px, 100%);
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--border);
+      padding: 40px;
+      box-sizing: border-box;
+      backdrop-filter: blur(16px);
+    }
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 2.2rem);
+      letter-spacing: -0.025em;
+    }
+    .header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    input[type="email"],
+    input[type="password"] {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      font-size: 1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      background: rgba(255, 255, 255, 0.85);
+    }
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: rgba(37, 99, 235, 0.75);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    }
+    button[type="submit"] {
+      border: none;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    button[type="submit"]:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 30px rgba(37, 99, 235, 0.35);
+    }
+    button[type="submit"]:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+    .status {
+      min-height: 24px;
+      font-size: 0.9rem;
+      color: #dc2626;
+      text-align: center;
+    }
+    .status.success {
+      color: #16a34a;
+    }
+    .footer {
+      margin-top: 28px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    @media (max-width: 480px) {
+      .card {
+        padding: 28px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>Flashy Admin</h1>
+      <p>Sign in with your administrator credentials to moderate content and manage roles.</p>
+    </div>
+    <form id="loginForm" autocomplete="on">
+      <label for="email">
+        Email address
+        <input id="email" name="email" type="email" placeholder="admin@example.com" required autofocus />
+      </label>
+      <label for="password">
+        Password
+        <input id="password" name="password" type="password" placeholder="Enter your password" required />
+      </label>
+      <button id="submitBtn" type="submit">
+        <span>Sign in</span>
+        <span aria-hidden="true">→</span>
+      </button>
+      <div id="status" class="status" role="status"></div>
+    </form>
+    <div class="footer">
+      Having trouble? Contact another admin to reset your credentials.
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const statusNode = document.getElementById("status");
+    const submitBtn = document.getElementById("submitBtn");
+
+    function showStatus(message, type = "error") {
+      statusNode.textContent = message;
+      statusNode.className = `status ${type === "success" ? "success" : ""}`;
+    }
+
+    async function login(event) {
+      event.preventDefault();
+      submitBtn.disabled = true;
+      showStatus("Authenticating…", "success");
+
+      const email = form.email.value.trim();
+      const password = form.password.value;
+
+      try {
+        const response = await fetch("/api/v1/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({ message: "Unable to login" }));
+          throw new Error(data.message || "Invalid email or password");
+        }
+
+        const payload = await response.json();
+        const roles = payload.user?.roles || [];
+        const allowedRoles = new Set(["admin", "marketing"]);
+        const hasAccess = roles.some((role) => allowedRoles.has(role));
+
+        if (!hasAccess) {
+          showStatus("Administrator or marketing permissions are required to access the dashboard.");
+          submitBtn.disabled = false;
+          return;
+        }
+
+        localStorage.setItem("flashy.accessToken", payload.access_token);
+        localStorage.setItem("flashy.refreshToken", payload.refresh_token);
+        localStorage.setItem("flashy.user", JSON.stringify(payload.user));
+
+        showStatus("Login successful. Redirecting…", "success");
+        window.location.href = "/dashboard";
+      } catch (error) {
+        console.error(error);
+        showStatus(error.message || "Authentication failed.");
+        submitBtn.disabled = false;
+      }
+    }
+
+    form.addEventListener("submit", login);
+
+    (function validateExistingSession() {
+      try {
+        const stored = JSON.parse(localStorage.getItem("flashy.user") || "null");
+        const token = localStorage.getItem("flashy.accessToken");
+        const allowedRoles = new Set(["admin", "marketing"]);
+        if (
+          stored &&
+          token &&
+          Array.isArray(stored.roles) &&
+          stored.roles.some((role) => allowedRoles.has(role))
+        ) {
+          window.location.replace("/dashboard");
+        }
+      } catch (error) {
+        console.warn("Unable to parse stored user", error);
+      }
+    })();
+  </script>
+</body>
+</html>

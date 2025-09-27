@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from .auth import LoginSchema, RegisterSchema
+from .blog import BlogPostSchema
 from .flashcard import FlashcardDeckSchema, FlashcardSchema
 from .lesson import LessonSchema
 from .profile import ProfileSchema
@@ -12,6 +13,7 @@ from .user import UserSchema
 __all__ = [
     "LoginSchema",
     "RegisterSchema",
+    "BlogPostSchema",
     "FlashcardDeckSchema",
     "FlashcardSchema",
     "LessonSchema",

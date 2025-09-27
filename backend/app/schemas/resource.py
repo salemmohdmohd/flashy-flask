@@ -13,6 +13,7 @@ class ResourceSchema(ma.SQLAlchemyAutoSchema):
     """Serialize resource data."""
 
     categories = fields.List(fields.Str())
+    owner_email = fields.Method("get_owner_email")
     download_url = fields.Method("get_download_url")
     content_preview = fields.Method("get_content_preview")
 
@@ -57,3 +58,7 @@ class ResourceSchema(ma.SQLAlchemyAutoSchema):
     def get_content_preview(self, obj: Resource) -> str | None:
         """Return a truncated preview of the extracted text content."""
         return obj.text_excerpt()
+
+    def get_owner_email(self, obj: Resource) -> str | None:
+        """Return the email address of the resource owner if available."""
+        return obj.owner.email if obj.owner else None

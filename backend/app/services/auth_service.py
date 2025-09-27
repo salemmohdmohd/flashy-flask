@@ -7,6 +7,8 @@ from typing import Optional
 import requests
 from flask import current_app
 from flask_jwt_extended import create_access_token, create_refresh_token
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload, selectinload
 
 from ..extensions import db
 from ..models import Profile, Role, User
@@ -30,9 +32,9 @@ class AuthService:
         role_name: str | None = None,
     ) -> User:
         """Register a new user and assign default roles."""
-        if User.query.filter_by(email=email).first():
+        if db.session.scalar(select(User).where(User.email == email)):
             raise AuthServiceError("Email already registered")
-        if User.query.filter_by(username=username).first():
+        if db.session.scalar(select(User).where(User.username == username)):
             raise AuthServiceError("Username already taken")
 
         user = User(email=email, username=username)
@@ -51,17 +53,26 @@ class AuthService:
 
     def authenticate(self, *, email: str, password: str) -> tuple[str, str, User]:
         """Authenticate user credentials and issue JWT tokens."""
-        user = User.query.filter_by(email=email).first()
+        stmt = (
+            select(User)
+            .where(User.email == email)
+            .options(selectinload(User.roles), joinedload(User.profile))
+        )
+        user = db.session.scalar(stmt)
         if not user or not user.check_password(password):
             raise AuthServiceError("Invalid credentials")
         if not user.is_active:
             raise AuthServiceError("Account disabled")
 
+        role_names = [role.name for role in user.roles]
         access_token = create_access_token(
-            identity=user.id,
-            additional_claims={"roles": [role.name for role in user.roles]},
+            identity=str(user.id),
+            additional_claims={"roles": role_names},
         )
-        refresh_token = create_refresh_token(identity=user.id)
+        refresh_token = create_refresh_token(
+            identity=str(user.id),
+            additional_claims={"roles": role_names},
+        )
         return access_token, refresh_token, user
 
     def google_oauth_login(self, *, code: str) -> tuple[str, str, User]:
@@ -101,7 +112,12 @@ class AuthService:
         if not email:
             raise AuthServiceError("Email not found in Google profile")
 
-        user = User.query.filter_by(email=email).first()
+        stmt = (
+            select(User)
+            .where(User.email == email)
+            .options(selectinload(User.roles), joinedload(User.profile))
+        )
+        user = db.session.scalar(stmt)
         if not user:
             username = userinfo.get("given_name") or email.split("@")[0]
             user = User(email=email, username=username)
@@ -115,25 +131,43 @@ class AuthService:
             db.session.add(user)
             db.session.commit()
 
+        role_names = [role.name for role in user.roles]
         access_token = create_access_token(
-            identity=user.id,
-            additional_claims={"roles": [role.name for role in user.roles]},
+            identity=str(user.id),
+            additional_claims={"roles": role_names},
         )
-        refresh_token = create_refresh_token(identity=user.id)
+        refresh_token = create_refresh_token(
+            identity=str(user.id),
+            additional_claims={"roles": role_names},
+        )
         return access_token, refresh_token, user
 
     def _resolve_roles(self, requested_role: Optional[str]) -> list[Role]:
         """Resolve roles ensuring at least the student role exists."""
-        default_role = Role.query.filter_by(name="student").first()
+        default_role = db.session.scalar(select(Role).where(Role.name == "student"))
         roles: list[Role] = []
         if default_role:
             roles.append(default_role)
         if requested_role and requested_role != "student":
-            role = Role.query.filter_by(name=requested_role).first()
+            role = db.session.scalar(select(Role).where(Role.name == requested_role))
             if not role:
                 raise AuthServiceError("Requested role is invalid")
             roles.append(role)
         return roles
+
+    def get_user_roles(self, identity: int | str) -> list[str]:
+        """Return role names for the given user identity."""
+
+        try:
+            user_id = int(identity)
+        except (TypeError, ValueError) as exc:  # pragma: no cover - defensive
+            raise AuthServiceError("Invalid user identity") from exc
+
+        stmt = select(User).options(selectinload(User.roles)).where(User.id == user_id)
+        user = db.session.scalar(stmt)
+        if not user:
+            raise AuthServiceError("User not found")
+        return [role.name for role in user.roles]
 
 
 auth_service = AuthService()

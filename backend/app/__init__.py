@@ -19,6 +19,7 @@ from .routes.lessons import lesson_bp
 from .routes.profile import profile_bp
 from .routes.public import public_bp
 from .routes.resources import resource_bp
+from .routes.web import web_bp
 from .utils.logging import LOGGING_CONFIG
 
 
@@ -48,6 +49,9 @@ def create_app(config_class: str = "backend.config.DevelopmentConfig") -> Flask:
 
 def register_extensions(app: Flask) -> None:
     """Bind Flask extensions to the application."""
+    from .models.base import Base
+
+    db.Model = Base  # type: ignore[attr-defined]
     db.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
@@ -67,6 +71,7 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(lesson_bp, url_prefix="/api/v1/lessons")
     app.register_blueprint(admin_bp, url_prefix="/api/v1/admin")
     app.register_blueprint(public_bp, url_prefix="/api/v1/public")
+    app.register_blueprint(web_bp)
 
 
 def configure_cors(app: Flask) -> None:

@@ -7,7 +7,7 @@ from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_jwt_extended import current_user
 
-from .extensions import admin, db
+from .extensions import db
 from .models import (
     BlogPost,
     Category,
@@ -52,8 +52,14 @@ class SecureAdminIndexView(AdminIndexView):
 
 def setup_admin(app) -> Admin:
     """Register admin views."""
-    admin._set_admin_index_view(SecureAdminIndexView())  # type: ignore[attr-defined]
-    admin.init_app(app)
+
+    admin_instance = Admin(
+        app,
+        name="Flashy Admin",
+        template_mode="bootstrap4",
+        index_view=SecureAdminIndexView(),
+        endpoint="admin_ui",
+    )
 
     models = [
         (User, "user_admin"),
@@ -68,5 +74,5 @@ def setup_admin(app) -> Admin:
         (Notification, "notification_admin"),
     ]
     for model, endpoint in models:
-        admin.add_view(SecureModelView(model, db.session, endpoint=endpoint))
-    return admin
+        admin_instance.add_view(SecureModelView(model, db.session, endpoint=endpoint))
+    return admin_instance
