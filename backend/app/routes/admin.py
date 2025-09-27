@@ -10,7 +10,7 @@ from ..models import FAQ, BlogPost, Resource, Role, User
 from ..schemas import ResourceSchema, UserSchema
 from ..utils.security import roles_accepted, roles_required
 
-admin_bp = Blueprint("admin", __name__)
+admin_bp = Blueprint("admin_api", __name__)
 user_schema = UserSchema()
 resource_schema = ResourceSchema()
 

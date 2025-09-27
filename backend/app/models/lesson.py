@@ -31,8 +31,8 @@ class Lesson(TimestampMixin, Base):
     )
     status: Mapped[str] = mapped_column(String(50), default="draft")
 
-    author: Mapped["User" | None] = relationship("User", back_populates="lessons")
-    resource: Mapped["Resource" | None] = relationship("Resource")
+    author: Mapped["User | None"] = relationship("User", back_populates="lessons")
+    resource: Mapped["Resource | None"] = relationship("Resource")
     categories: Mapped[List["Category"]] = relationship(
         "Category",
         secondary=lesson_categories,

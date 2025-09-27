@@ -21,6 +21,10 @@ limiter = Limiter(
     key_func=get_remote_address, default_limits=["200 per day", "50 per hour"]
 )
 ma = Marshmallow()
-admin = Admin(name="Flashy Admin", template_mode="bootstrap4")
+admin = Admin(
+    name="Flashy Admin",
+    template_mode="bootstrap4",
+    endpoint="admin_ui",
+)
 
 __all__ = ["db", "migrate", "mail", "jwt", "bcrypt", "limiter", "ma", "admin"]

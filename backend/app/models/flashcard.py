@@ -28,7 +28,7 @@ class FlashcardDeck(TimestampMixin, Base):
     )
 
     owner: Mapped["User"] = relationship("User", back_populates="flashcard_decks")
-    resource: Mapped["Resource" | None] = relationship(
+    resource: Mapped["Resource | None"] = relationship(
         "Resource", back_populates="flashcard_decks"
     )
     flashcards: Mapped[List["Flashcard"]] = relationship(

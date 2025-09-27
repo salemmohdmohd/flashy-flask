@@ -26,7 +26,7 @@ class BlogPost(TimestampMixin, Base):
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     is_published: Mapped[bool] = mapped_column(default=False)
 
-    author: Mapped["User" | None] = relationship("User")
+    author: Mapped["User | None"] = relationship("User")
 
     def __repr__(self) -> str:
         return f"<BlogPost {self.slug}>"

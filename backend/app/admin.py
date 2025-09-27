@@ -56,17 +56,17 @@ def setup_admin(app) -> Admin:
     admin.init_app(app)
 
     models = [
-        User,
-        Role,
-        Profile,
-        Category,
-        Resource,
-        FlashcardDeck,
-        Flashcard,
-        Lesson,
-        BlogPost,
-        Notification,
+        (User, "user_admin"),
+        (Role, "role_admin"),
+        (Profile, "profile_admin"),
+        (Category, "category_admin"),
+        (Resource, "resource_admin"),
+        (FlashcardDeck, "flashcard_deck_admin"),
+        (Flashcard, "flashcard_admin"),
+        (Lesson, "lesson_admin"),
+        (BlogPost, "blog_post_admin"),
+        (Notification, "notification_admin"),
     ]
-    for model in models:
-        admin.add_view(SecureModelView(model, db.session))
+    for model, endpoint in models:
+        admin.add_view(SecureModelView(model, db.session, endpoint=endpoint))
     return admin

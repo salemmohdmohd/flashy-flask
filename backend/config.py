@@ -7,16 +7,30 @@ from datetime import timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BASE_DIR.parent
+
+
+def _resolve_database_url(url: str) -> str:
+    """Ensure SQLite URLs use absolute filesystem paths."""
+
+    prefix = "sqlite:///"
+    if url.startswith(prefix) and not url.startswith("sqlite:////"):
+        relative_path = url[len(prefix) :]
+        if relative_path and not relative_path.startswith("/"):
+            absolute_path = (PROJECT_ROOT / relative_path).resolve()
+            return f"{prefix}{absolute_path}"
+    return url
 
 
 class BaseConfig:
     """Base configuration shared across environments."""
 
     SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "changeme")
-    SQLALCHEMY_DATABASE_URI = os.getenv(
+    _database_url = os.getenv(
         "DATABASE_URL",
-        f"sqlite:///{BASE_DIR / 'flashy.db'}",
+        f"sqlite:///{(BASE_DIR / 'flashy.db').resolve()}",
     )
+    SQLALCHEMY_DATABASE_URI = _resolve_database_url(_database_url)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwt-secret")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)

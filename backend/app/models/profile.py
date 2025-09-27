@@ -27,7 +27,7 @@ class Profile(TimestampMixin, Base):
         ForeignKey("users.id", ondelete="SET NULL"), unique=True
     )
 
-    user: Mapped["User" | None] = relationship("User", back_populates="profile")
+    user: Mapped["User | None"] = relationship("User", back_populates="profile")
 
     def full_name(self) -> str:
         """Return the profile's full name."""
