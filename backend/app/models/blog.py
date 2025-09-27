@@ -23,7 +23,9 @@ class BlogPost(TimestampMixin, Base):
     slug: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     hero_image_url: Mapped[str | None] = mapped_column(String(500))
-    author_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    author_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
     is_published: Mapped[bool] = mapped_column(default=False)
 
     author: Mapped["User | None"] = relationship("User")

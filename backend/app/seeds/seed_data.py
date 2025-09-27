@@ -7,6 +7,7 @@ from pathlib import Path
 from textwrap import dedent
 
 import click
+import sqlalchemy as sa
 from flask import current_app
 from flask.cli import with_appcontext
 
@@ -32,7 +33,7 @@ def seed_command() -> None:
     """Seed roles, users, and representative domain data."""
     roles = ["student", "teacher", "expert", "admin", "marketing"]
     for name in roles:
-        if not Role.query.filter_by(name=name).first():
+        if not db.session.scalar(sa.select(Role).where(Role.name == name)):
             db.session.add(Role(name=name, description=f"{name.title()} role"))
     db.session.commit()
 
@@ -130,7 +131,7 @@ def _ensure_user(
     last_name: str,
     roles: list[str],
 ) -> User:
-    user = User.query.filter_by(email=email).first()
+    user = db.session.scalar(sa.select(User).where(User.email == email))
     if user:
         return user
 
@@ -143,7 +144,7 @@ def _ensure_user(
     user.profile = profile
 
     for role_name in roles:
-        role = Role.query.filter_by(name=role_name).first()
+        role = db.session.scalar(sa.select(Role).where(Role.name == role_name))
         if role:
             user.roles.append(role)
 
@@ -153,7 +154,7 @@ def _ensure_user(
 
 
 def _ensure_category(*, name: str, description: str) -> Category:
-    category = Category.query.filter_by(name=name).first()
+    category = db.session.scalar(sa.select(Category).where(Category.name == name))
     if category:
         return category
     category = Category(name=name, description=description)
@@ -163,7 +164,9 @@ def _ensure_category(*, name: str, description: str) -> Category:
 
 
 def _ensure_resource(*, owner: User, category: Category, storage_dir: Path) -> Resource:
-    resource = Resource.query.filter_by(filename="ai_fundamentals.txt").first()
+    resource = db.session.scalar(
+        sa.select(Resource).where(Resource.filename == "ai_fundamentals.txt")
+    )
     if resource:
         return resource
 
@@ -198,7 +201,9 @@ def _ensure_resource(*, owner: User, category: Category, storage_dir: Path) -> R
 
 
 def _ensure_flashcard_deck(*, owner: User, resource: Resource) -> FlashcardDeck:
-    deck = FlashcardDeck.query.filter_by(title="AI Fundamentals Deck").first()
+    deck = db.session.scalar(
+        sa.select(FlashcardDeck).where(FlashcardDeck.title == "AI Fundamentals Deck")
+    )
     if deck:
         return deck
 
@@ -241,7 +246,9 @@ def _ensure_flashcard_deck(*, owner: User, resource: Resource) -> FlashcardDeck:
 def _ensure_lesson(
     *, author: User, resource: Resource, summary_source: FlashcardDeck
 ) -> Lesson:
-    lesson = Lesson.query.filter_by(title="AI Fundamentals Lesson").first()
+    lesson = db.session.scalar(
+        sa.select(Lesson).where(Lesson.title == "AI Fundamentals Lesson")
+    )
     if lesson:
         return lesson
 
@@ -263,7 +270,9 @@ def _ensure_lesson(
 
 
 def _ensure_blog_post(*, author: User) -> BlogPost:
-    post = BlogPost.query.filter_by(slug="supercharge-your-study-habits").first()
+    post = db.session.scalar(
+        sa.select(BlogPost).where(BlogPost.slug == "supercharge-your-study-habits")
+    )
     if post:
         return post
     post = BlogPost(
@@ -286,7 +295,9 @@ def _ensure_blog_post(*, author: User) -> BlogPost:
 
 
 def _ensure_faq() -> None:
-    faq = FAQ.query.filter_by(question="How does Flashy generate flashcards?").first()
+    faq = db.session.scalar(
+        sa.select(FAQ).where(FAQ.question == "How does Flashy generate flashcards?")
+    )
     if faq:
         return
     faq = FAQ(
@@ -342,9 +353,11 @@ def _seed_notifications(
 def _ensure_notification(
     *, recipient: User, subject: str, message: str
 ) -> Notification:
-    notification = Notification.query.filter_by(
-        recipient_id=recipient.id, subject=subject
-    ).first()
+    notification = db.session.scalar(
+        sa.select(Notification).where(
+            Notification.recipient_id == recipient.id, Notification.subject == subject
+        )
+    )
     if notification:
         return notification
     notification = Notification(recipient=recipient, subject=subject, message=message)
